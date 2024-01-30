@@ -1,0 +1,2 @@
+# Hardware
+ debug hardware
