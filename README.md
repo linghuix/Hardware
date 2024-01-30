@@ -1,2 +1,7 @@
 # Hardware
- debug hardware
+To make debug more easier 
+
+
+
+
+
