@@ -5,7 +5,7 @@
 #error Bluetooth is not enabled! Please run `make menuconfig` to enable it
 #endif
 
-//BluetoothSerial SerialBT;
+BluetoothSerial SerialBT;
 
 AS5048A angleSensor(04, false);
 
@@ -18,8 +18,8 @@ const float R = 0.01;   // Measurement noise covariance (adjust as needed)
 
 void setup() {
   Serial.begin(115200);
-  //SerialBT.begin("ESP32test_right");
-  //Serial.println("The device started, now you can pair it with Bluetooth!");
+  SerialBT.begin("ESP32test_right");
+  Serial.println("The device started, now you can pair it with Bluetooth!");
 
   angleSensor.begin();
 
@@ -29,8 +29,8 @@ void setup() {
   //Serial.print("Neutral Position: ");
   //Serial.println(neutral_position);
 
-  //Serial.print("New Zero Position: ");
-  //Serial.println(angleSensor.getZeroPosition());
+  Serial.print("New Zero Position: ");
+  Serial.println(angleSensor.getZeroPosition());
 }
 
 void determineZeroPosition() {
@@ -78,13 +78,7 @@ void loop() {
   }
 
   // Send the filtered angle data to MATLAB over Bluetooth
-  //SerialBT.print("Angle: ");
-  //SerialBT.println(reading);
-  //Serial.println(reading);
-  //Serial.print(readingVal);Serial.print(' ');
-  //Serial.print(readingVal+20);Serial.print(' ');
-  //Serial.print(readingVal+30);Serial.print(' ');
-  //Serial.print(readingVal-20);Serial.print(' ');
+  SerialBT.println(readingVal);
   Serial.println(readingVal);
   delay(10);  // Set sample frequency=100hz
 }
