@@ -1,5 +1,5 @@
 # Hardware
-To make debug more easier 
+To make debug easier 
 
 
 
