@@ -16,6 +16,8 @@ import threading
 import numpy as np
 from scipy.io import savemat
 
+from datetime import datetime
+
 
 # Global variables to store data for plotting
 number_lines = 6  # actual number of lines to draw from serial
