@@ -75,7 +75,7 @@ def handle_client(client_socket, client_address):
             #     break
 
             # Get the current timestamp with milliseconds
-            # timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
+            timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-1]
 
             # Calculate the number of received bytes
             num_bytes = num_bytes+len(data)
@@ -156,7 +156,7 @@ colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
 # Animation update function
 def update_plot(frame):
 
-    maxPointsToDraw = 2000
+    maxPointsToDraw = 200
 
     # Limit the number of data points to keep the plot responsive
     try:
@@ -190,7 +190,7 @@ def update_plot(frame):
         pass
 
 # Create an animation object
-ani = FuncAnimation(fig, update_plot, interval=10, save_count=10000)
+ani = FuncAnimation(fig, update_plot, interval=10, save_count=10)
 
 from scipy.io import savemat
 from datetime import datetime
