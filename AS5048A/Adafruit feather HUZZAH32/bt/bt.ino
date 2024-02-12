@@ -11,7 +11,7 @@ AS5048A angleSensor(04, false);
 
 static float neutral_position = 0;
 // Kalman filter variables
-float x_hat = 0;        // Estimate of the state
+float x_hat = 0;        // Estimate of the statec:\Users\lingh\Downloads\libraries\AS5048\src\AS5048A.h
 float P = 1;            // Estimate error covariance
 const float Q = 0.001;  // Process noise covariance (adjust as needed)
 const float R = 0.01;   // Measurement noise covariance (adjust as needed)

@@ -14,6 +14,7 @@ int server_port = 12345;
 WiFiClient client;
 
 void setup() {
+	
   Serial.begin(115200);
   delay(10);
 
@@ -47,42 +48,46 @@ void setup() {
 
 void loop() {
   
+  // Not connect to the server
   if (!client.connected()) {
-    // Connect to the server
+    
     Serial.println("Connecting to server...");
     delay(1000);
     if (client.connect(server_ip, server_port)) {
       Serial.println("Connected to server");
-      //client.println("Hello from ESP32!"); // Send data to the server
+      client.println("Hello from ESP32!"); // Send data to the server
     }
     else {
       Serial.println("Connection failed");
     }
   }
+  // connected to the server
   else {
     datasend();
   }
 }
 
 
-int bufferSize=50; // Calculate the required buffer size
-int num; 
+int bufferSize=50; 	// Calculate the required buffer size
+int num; 			// number of bytes to sent through WIFI
 void datasend(void) {
+	
   int sensorValue = analogRead(32);
 
-  //Serial.println(sensorValue);
-
-  //确保发送的整数在传输过程中保持固定的字节数
+  //Ensure that the data for transmission remains a fixed number of bytes every time
   char *buffer = new char[bufferSize]; // Dynamically allocate buffer
   sprintf(buffer, "%04d@", sensorValue);
   
-  // Now, you can send the formatted data to the server
+  // Now, you can send the formatted data to the WIFI server
   num = client.print(buffer);
+  
+  // Also print data in serial port, to check it with tcp/ip data
   Serial.println(sensorValue);
 
-  delete[] buffer; // Free dynamically allocated memory
+  // Free dynamically allocated memory
+  delete[] buffer; 
 
-  // Now it's used to ensure that all data has been sent before doing anything else.
+  // Ensure that all data has been sent before doing anything else.
   client.flush();
   
   delay(2); // Wait for a while before reconnecting
