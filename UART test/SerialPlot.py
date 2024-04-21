@@ -31,7 +31,7 @@ last_number = 0;
 
 
 # Specify the serial port and baud rate
-serial_port = "COM14"  # Replace with your serial port
+serial_port = "COM13"  # Replace with your serial port
 baud_rate = 115200  # Set the baud rate of your UART communication
 
 # Create a serial object
