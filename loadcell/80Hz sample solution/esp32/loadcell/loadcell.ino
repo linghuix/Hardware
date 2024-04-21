@@ -34,16 +34,30 @@ The HX711 board can be powered from 2.7V to 5V so the Arduino 5V power should be
 
 #include "HX711.h"  // https://github.com/bogde/HX711
 
-#define DOUT  18
-#define CLK  19
+#define DOUT  13
+#define CLK  14
+
+#define RTE  15
+
+#define DOUT_B  18
+#define CLK_B  19
 
 #define GAIN  128
+#define GAIN_B  32
 
 HX711 scale;
+HX711 scale_B;
 
 float calibration_factor = 22000; //-7050 worked for my 440lb max scale setup
 
+long reading;
+
 void setup() {
+
+  // Choose output speed as 80 Hz
+  pinMode(15, OUTPUT);
+  digitalWrite(15, HIGH);
+
   Serial.begin(115200);
   Serial.println("HX711 calibration sketch");
   Serial.println("Remove all weight from scale");
@@ -54,22 +68,57 @@ void setup() {
   scale.begin(DOUT, CLK, GAIN);
   scale.set_scale();
   scale.tare(); //Reset the scale to 0
+  scale.power_up();
+
+  scale_B.begin(DOUT_B, CLK_B, GAIN_B);
+  scale_B.set_scale();
+  scale_B.tare(); //Reset the scale to 0
+  scale_B.power_up();
 
   long zero_factor = scale.read_average(); //Get a baseline reading
   Serial.print("Zero factor: "); //This can be used to remove the need to tare the scale. Useful in permanent scale projects.
   Serial.println(zero_factor);
+  zero_factor = scale_B.read_average(); //Get a baseline reading
+  Serial.print("Zero factor: "); //This can be used to remove the need to tare the scale. Useful in permanent scale projects.
+  Serial.println(zero_factor);
+
+  delay(1000);
+
 }
 
 void loop() {
 
-  scale.set_scale(calibration_factor); //Adjust to this calibration factor
+  //scale.set_scale(calibration_factor); //Adjust to this calibration factor
+  // Serial.print(scale.get_units(), 2);
+  // Serial.print("kg_A"); //Change this to kg and re-adjust the calibration factor if you follow SI units like a sane person
+  // Serial.print("   ");
 
-  //Serial.print("Reading: ");
-  Serial.print(scale.get_units(), 2);
-  //Serial.print("kgs"); //Change this to kg and re-adjust the calibration factor if you follow SI units like a sane person
-  //Serial.print(" calibration_factor: ");
-  //Serial.print(calibration_factor);
-  Serial.println();
+
+  //scale_B.set_scale(calibration_factor); //Adjust to this calibration factor
+  // Serial.print(scale_B.get_units(), 2);
+  // Serial.print("kg_B"); //Change this to kg and re-adjust the calibration factor if you follow SI units like a sane person
+  // Serial.println();
+
+
+  // 4. Acquire reading without blocking
+  if (scale.wait_ready_timeout(20)) {
+      scale.set_scale(calibration_factor);
+      Serial.print(scale.get_units(), 2);
+      //Serial.print("kg_A");
+  } else {
+      Serial.print("HX711 not found.");
+  }
+
+  Serial.print("  ");
+
+  if (scale_B.wait_ready_timeout(20)) {
+      scale_B.set_scale(calibration_factor);
+      Serial.print(scale_B.get_units(), 2);
+      //Serial.print("kg_B");
+  } else {
+      Serial.print("HX711 not found.");
+  }
+
 
   if(Serial.available())
   {
@@ -80,6 +129,7 @@ void loop() {
       calibration_factor -= 10;
   }
 
-  delay(1);
+  //delay(1);
+  Serial.println();
 }
 
