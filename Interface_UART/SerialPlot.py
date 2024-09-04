@@ -18,9 +18,11 @@ from scipy.io import savemat
 
 from datetime import datetime
 
+# debug
+debug = 0;
 
 # Global variables to store data for plotting
-number_lines = 6  # actual number of lines to draw from serial
+number_lines = 4  # actual number of lines to draw from serial
 
 global number, last_number,x_data,y_data;
 x_data = []
@@ -35,7 +37,8 @@ serial_port = "COM13"  # Replace with your serial port
 baud_rate = 115200  # Set the baud rate of your UART communication
 
 # Create a serial object
-ser = serial.Serial(serial_port, baud_rate)
+ser = serial.Serial(serial_port, baud_rate,)
+ser.rts = False
 
 
 # Callback function to handle incoming data
@@ -68,6 +71,10 @@ def read_serial_data(ser, callback):
         while True:
             # Read data from the serial port
             data = ser.readline()
+            
+            if debug:
+                print("#debug# data received:", data)
+
             if data:
                 # Call the callback function with the received data
                 callback(data)
@@ -107,7 +114,7 @@ def update_plot(frame):
     # Automatically adjust the view limits
     ax.relim()
     ax.autoscale_view()
-    ax.set_ylim(-200, 200)
+    # ax.set_ylim(-100, 100)
 
 
 
@@ -133,10 +140,22 @@ finally:
     # Generate a timestamp for the filename
     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
 
+
+    # Find the maximum length of sequences in y_data
+    max_length = max(len(seq) for seq in y_data)
+
+    # Pad sequences with zeros to make them all the same length
+    padded_y_data = [seq + [0] * (max_length - len(seq)) for seq in y_data]
+
+    # Convert y_data to a NumPy array
+    y_array = np.array(padded_y_data)
+
     # Construct the filename with the timestamp
     filename = f'./data_{timestamp}.mat'
-    data_dict = {'time_data': np.array(x_data), 'value_data': np.array(y_data)}
+    data_dict = {'time_data': np.array(x_data), 'value_data': np.array(y_array)}
     
     savemat(filename, data_dict)
     
     print('#### save data ####')
+
+

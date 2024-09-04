@@ -2,7 +2,7 @@
 clear;
 clc;
 % Open a serial port
-port = 'COM14';  % Update with your COM port
+port = 'COM13';  % Update with your COM port
 baudRate = 115200;
 
 s = serialport(port, baudRate);

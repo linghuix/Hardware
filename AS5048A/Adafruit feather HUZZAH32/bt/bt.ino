@@ -10,11 +10,6 @@ BluetoothSerial SerialBT;
 AS5048A angleSensor(04, false);
 
 static float neutral_position = 0;
-// Kalman filter variables
-float x_hat = 0;        // Estimate of the statec:\Users\lingh\Downloads\libraries\AS5048\src\AS5048A.h
-float P = 1;            // Estimate error covariance
-const float Q = 0.001;  // Process noise covariance (adjust as needed)
-const float R = 0.01;   // Measurement noise covariance (adjust as needed)
 
 void setup() {
   Serial.begin(115200);
@@ -48,6 +43,12 @@ void determineZeroPosition() {
   neutral_position = sum / numSamples;
 }
 
+
+// Kalman filter variables
+float x_hat = 0;        // Estimate of the statec:\Users\lingh\Downloads\libraries\AS5048\src\AS5048A.h
+float P = 1;            // Estimate error covariance
+const float Q = 0.001;  // Process noise covariance (adjust as needed)
+const float R = 0.01;   // Measurement noise covariance (adjust as needed)
 float kalmanFilter(float measurement) {
   // Prediction step
   float x_hat_minus = x_hat;
@@ -61,25 +62,39 @@ float kalmanFilter(float measurement) {
   return x_hat;
 }
 
+
+// filter info
+const float samplingFrequency = 100.0;   // Sampling frequency in Hz
+const float cutoffFrequency = 5.0;     // Cutoff frequency in Hz
+const float tau = 1.0 / (2.0 * PI * cutoffFrequency);   // Time constant for the filter
+const float alpha = 1.0 / (1.0 + tau * samplingFrequency);
+float filtered_measurement = 0;
+float lowPassFilter(float measurement){
+
+      filtered_measurement = alpha * measurement + (1.0 - alpha) * filtered_measurement;
+      return filtered_measurement;
+}
+
 void loop() {
   float readingVal = angleSensor.getRotationInDegrees();
-  //float filtered_reading = kalmanFilter(reading - neutral_position);
 
   // compensate initial offset
   readingVal = readingVal - neutral_position;
 
-  if (readingVal > 180) 
+  float filtered_reading = kalmanFilter(readingVal);
+
+  if (filtered_reading > 180) 
   {
-    readingVal = readingVal - 360;
+    filtered_reading = filtered_reading - 360;
   } 
-  else if (readingVal < -180) 
+  else if (filtered_reading < -180) 
   {
-    readingVal = readingVal + 360;
+    filtered_reading = filtered_reading + 360;
   }
 
   // Send the filtered angle data to MATLAB over Bluetooth
-  SerialBT.println(readingVal);
-  Serial.println(readingVal);
+  SerialBT.println(filtered_reading);
+  Serial.println(filtered_reading);
   delay(10);  // Set sample frequency=100hz
 }
 
