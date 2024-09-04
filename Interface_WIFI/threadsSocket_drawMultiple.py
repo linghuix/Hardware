@@ -45,8 +45,10 @@ def is_socket_connected(sock):
     except socket.error as e:
         # An exception is raised if the socket is not connected
         return False
-    
+
+""" receive data stream split with @ """
 def receive_until_at_symbol(client_socket):
+
     data = b''  # Initialize an empty byte string to store received data
 
     while True:
@@ -58,7 +60,7 @@ def receive_until_at_symbol(client_socket):
 
     return data
 
-# Function to handle a single client
+""" Function to handle a single client """
 def handle_client(client_socket, client_address):
 
     try:
@@ -70,10 +72,6 @@ def handle_client(client_socket, client_address):
             data = receive_until_at_symbol(client_socket)
             # print('data - ', data)
 
-            # If no data received, break the loop
-            # if not data:
-            #     break
-
             # Get the current timestamp with milliseconds
             timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-1]
 
@@ -84,7 +82,7 @@ def handle_client(client_socket, client_address):
 
             # Determine client identifier based on their IP address
             # client_identifier = f"{client_address[0]}_{client_address[1]}"
-            client_identifier = f"client_{client_address[0].replace('.', '_')}"
+            client_identifier = f"client_{client_address[0].replace('.', '_')}_{client_address[1]}"
 
             # Store the received data in the dictionary
             if client_identifier not in client_data:
@@ -183,8 +181,8 @@ def update_plot(frame):
                 # Automatically adjust the view limits
                 axs[client_index].relim()
                 axs[client_index].autoscale_view()
-                axs[client_index].set_ylim(0, 4096)
-                axs[client_index].set_xlim(0, maxPointsToDraw)
+                # axs[client_index].set_ylim(0, 4096)
+                # axs[client_index].set_xlim(0, maxPointsToDraw)
                 axs[client_index].legend()
     except :
         pass

@@ -54,3 +54,11 @@ dkms.conf
 *.mat
 loadcell/80Hz sample solution/rasberry pi/hx711py-master/resources/.DS_Store
 loadcell/80Hz sample solution/README.pdf
+*.csv
+
+!Interface_UART/
+Interface_UART/*
+!Interface_UART/*py
+!Interface_UART/*m
+
+
