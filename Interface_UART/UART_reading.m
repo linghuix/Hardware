@@ -1,77 +1,161 @@
+
+% This script connects to a Bluetooth or serial device (e.g., an Arduino) and 
+% continuously reads sensor data, which is then plotted in real-time. The data 
+% is expected to be in the format of a string with five elements, where the first 
+% element is a character ('a') followed by four numeric values. The script allows 
+% for real-time monitoring of sensor readings over a specified number of iterations, 
+% with the option to display a limited number of points in the plot.
+
+% Key Functionality:
+% 1. Establishes a serial connection to a device via a specified COM port and baud rate.
+% 2. Configures the communication to use Carriage Return/Line Feed (CR/LF) as the terminator.
+% 3. Sends a command ('c') to the device to initiate data transmission.
+% 4. Continuously reads incoming data, parses it, and stores it in a matrix, 
+%    while also timestamping each reading.
+% 5. Real-time plotting of the sensor data, updating the display at each iteration.
+% 6. Handles any errors during execution by saving the valid data collected up to the 
+%    point of the error in a .mat file, with timestamps for debugging and analysis.
+% 7. Properly closes the serial connection upon completion.
+
+% Key Variables:
+% - port: COM port to connect to the device.
+% - baudRate: Baud rate for communication.
+% - maxPoints: Maximum number of data points to display in the real-time plot.
+% - maxIterations: Maximum number of iterations to run the data collection loop.
+% - dataMatrix: Matrix to store the sensor data (4 columns expected from the device).
+% - timeStamps: Array to store timestamps corresponding to each data entry.
+% - s: Serial object used for communication with the device.
+% - hPlot: Handle for the real-time plot.
+
+% Example Usage:
+% Update the 'port' variable to match the COM port of your device, and adjust 
+% 'baudRate' as needed. DON'T forget change the beginning char 'a' as expected.
+% Run the script to start collecting and plotting sensor data.
+
+
+
 % Clear the workspace
 clear;
 clc;
-% Open a serial port
-port = 'COM13';  % Update with your COM port
+
+
+%put 1.25 kg on load cellA(on the foot heel, 15cm moment arm ) when motor is on
+note_tosave = 'static moment calibration 2 - apply loads 1.9/2.5/2.4/2.6/3.1/3.1/6.2kg on position towards foot heel with moment arm -10 cm and measure output( which is the moment of loads correponding to the center of footplate)';
+
+port = 'COM21';  % Update with your COM port
 baudRate = 115200;
 
 s = serialport(port, baudRate);
-configureTerminator(s, "LF");  % Assuming line feed is used as terminator
+
+% to solve issue that PCB does not send data after several minmutes
+flush(s);  % 清空缓冲区
+
+% Configure the Bluetooth object to use a CR/LF (Carriage Return/Line Feed) terminator
+% This is necessary because each line of data from the device ends with CR/LF
+configureTerminator(s, "CR/LF");
 
 % Set fixed y-axis limits
-yMin = -180;
-yMax = 180;
+% yMin = -20;  % Adjust as needed
+% yMax = 20;   % Adjust as needed
 
-% Initialize variables for storing data
-timeStamps = [];
-sensorData = [];
 
+% Set a maximum number of points to display in the plot at one time
 maxPoints = 100;
 
+% Set a maximum number of iterations
+maxIterations = 80*10*60;
+iteration = 0;
+
+% Initialize a matrix to store all received data and an array for timestamps (preallocate)
+% Assuming 4 columns as per the data format: "45 322 545 65"
+dataMatrix = NaN(maxIterations, 4);  % Initialize with NaNs
+timeStamps = NaN(1, maxIterations);  % Initialize timestamps array
+
+
+% Send the character 'c' to the Arduino via Bluetooth
+write(s, 'c', "string");
+
+
+% Start the timer to measure the overall runtime
+tic
+
+
 try
-    % Set a maximum number of iterations
-    maxIterations = 200;
-    iteration = 0;
 
     % Create a plot handle with connecting lines
-    hPlot = plot(0, 0, '*-', 'LineWidth', 1);  % Connect the data points with lines
+    hPlot = plot(0, 0, '.-', 'LineWidth', 1);  % Connect the data points with lines
     xlabel('Iteration');
-    ylabel('Sensor Reading');
+    ylabel('Sensor Reading(Dedgree)');
     title('Connected Sensor Reading Over Time');
     grid on;
 
-    % Set y-axis limits before entering the loop
-    ylim([yMin, yMax]);
 
-    while (1)
-        iteration = iteration + 1;
+    % Set y-axis limits before entering the loop (optional, adjust as needed)
+    % ylim([yMin, yMax]);
 
-        % Read a line from the serial port
-        data = readline(s);
+    % Infinite loop to continuously read data from the Bluetooth device
+    while (iteration < maxIterations)
 
-        % Convert the received data to a numeric value
-        sensorReading = str2double(data);
+        % Check if data is available
+        if s.NumBytesAvailable  > 0
 
-        % Display received data for debugging
-        %fprintf('Received: %s\n', data);
-
-        % Store the data for later
-        timeStamps = [timeStamps, iteration];
-        sensorData = [sensorData, sensorReading];
-
-        % Ensure that the lengths of timeStamps and sensorData do not exceed maxPoints
-        if length(timeStamps) > maxPoints
-            timeStamps_trunc = timeStamps(end-maxPoints+1:end);
-            sensorData_trunc = sensorData(end-maxPoints+1:end);
-        else
-            timeStamps_trunc = timeStamps;
-            sensorData_trunc = sensorData;  
+            % Read the line of data
+            dataLine = readline(s);
+            % disp(dataLine);  % Uncomment to display the raw data line (for debugging)
+            
+            % Split the line into individual numbers
+            dataValues = strsplit(dataLine);
+            % disp(dataValues);  % Uncomment to display the parsed data (for debugging)
+            
+            % Check if the data is valid and has exactly 4 elements
+            if length(dataValues) == 5 && dataValues(1) == 'a'
+                iteration = iteration + 1;
+                dataVector = str2double(dataValues(2:end));
+                dataMatrix(iteration, :) = dataVector;
+                timeStamps(iteration) = iteration;
+            else
+                continue;
+            end
+            
+            % Extract the third column (sensor data) from the data matrix
+            sensorData = dataMatrix(:, 2);
+            
+            % Ensure that the lengths of timeStamps and sensorData do not exceed maxPoints
+            if iteration >= maxPoints
+                timeStamps_trunc = timeStamps(iteration-maxPoints+1:iteration);
+                sensorData_trunc = sensorData(iteration-maxPoints+1:iteration);
+            else
+                timeStamps_trunc = timeStamps;
+                sensorData_trunc = sensorData;  
+            end
+        
+            % Update the plot with connected data points
+            set(hPlot, 'XData', timeStamps_trunc, 'YData', sensorData_trunc);
+            drawnow
         end
-
-        % Update the plot with connected data points
-        set(hPlot, 'XData', timeStamps_trunc, 'YData', sensorData_trunc);
-
-        % Pause to allow time for plotting (adjust as needed)
-        % pause(0.1);
-        drawnow
     end
 
-catch ex
+    
+catch exception
     % Display the error message
-    disp(ex.message);
+    disp(['Error: ' exception.message]);
+    toc                     % Display the elapsed time up to the point of the error
+
+    % Generate a timestamp string
+    timestamps = datetime('now', 'Format', 'yyyy_MM_dd_HH_mm_ss');
+    filename = sprintf('%s_loadcell_data.mat', timestamps);
+
+    % Save the collected data before exiting
+    validIndices = ~isnan(dataMatrix(:, 2));  % Get valid data only
+    dataMatrix_valid = dataMatrix(validIndices, :);
+    timeStamps_valid = timeStamps(validIndices);
+    
+    % Save the valid data to a .mat file
+    save(filename, 'dataMatrix_valid', 'timeStamps_valid', 'note_tosave');
+    fprintf('Data saved to %s\n', filename);
+
 end
 
-% Close the serial port when done
-fclose(s);
-delete(s);
-fprintf('Serial port closed.\n');
+% Close the Bluetooth connection correctly
+clear s;
+fprintf('Bluetooth connection closed.\n');
