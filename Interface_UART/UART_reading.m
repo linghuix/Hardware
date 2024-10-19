@@ -40,7 +40,7 @@ clc;
 
 
 %put 1.25 kg on load cellA(on the foot heel, 15cm moment arm ) when motor is on
-note_tosave = 'static moment calibration 2 - apply loads 1.9/2.5/2.4/2.6/3.1/3.1/6.2kg on position towards foot heel with moment arm -10 cm and measure output( which is the moment of loads correponding to the center of footplate)';
+note_tosave = 'load 2.5g, 1rpm, moment arm towards heel(loadcell A) 5.9cm, -90 - +90 degree, with footplate';
 
 port = 'COM21';  % Update with your COM port
 baudRate = 115200;
@@ -60,10 +60,10 @@ configureTerminator(s, "CR/LF");
 
 
 % Set a maximum number of points to display in the plot at one time
-maxPoints = 100;
+maxPoints = 1000;
 
 % Set a maximum number of iterations
-maxIterations = 80*10*60;
+maxIterations = 80*20*60;
 iteration = 0;
 
 % Initialize a matrix to store all received data and an array for timestamps (preallocate)
@@ -83,11 +83,12 @@ tic
 try
 
     % Create a plot handle with connecting lines
-    hPlot = plot(0, 0, '.-', 'LineWidth', 1);  % Connect the data points with lines
+    hPlot = plot(0, 0, '.-', 'LineWidth', 2);  % Connect the data points with lines
     xlabel('Iteration');
     ylabel('Sensor Reading(Dedgree)');
     title('Connected Sensor Reading Over Time');
     grid on;
+    set(gca, 'FontSize', 20);
 
 
     % Set y-axis limits before entering the loop (optional, adjust as needed)
@@ -135,7 +136,13 @@ try
         end
     end
 
-    
+    timestamps = datetime('now', 'Format', 'yyyy_MM_dd_HH_mm_ss');
+    filename = sprintf('%s_loadcell_data.mat', timestamps);
+    dataMatrix_valid = dataMatrix;
+    timeStamps_valid = timeStamps;
+    save(filename, 'dataMatrix_valid', 'timeStamps_valid', 'note_tosave');
+    fprintf('Data saved to %s\n', filename);
+
 catch exception
     % Display the error message
     disp(['Error: ' exception.message]);
@@ -158,4 +165,4 @@ end
 
 % Close the Bluetooth connection correctly
 clear s;
-fprintf('Bluetooth connection closed.\n');
+fprintf('UART connection closed.\n');
