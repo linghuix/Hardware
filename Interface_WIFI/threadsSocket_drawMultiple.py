@@ -7,6 +7,9 @@ from matplotlib.animation import FuncAnimation
 
 import select  # for non-blocking socket operations on Windows
 
+connectedClients = []
+clients_lock = threading.Lock()
+
 # Set the host and port for the server
 host = '0.0.0.0'  # Use '0.0.0.0' for all available interfaces
 port = 12345  # Choose a port number
@@ -63,6 +66,11 @@ def receive_until_at_symbol(client_socket):
 """ Function to handle a single client """
 def handle_client(client_socket, client_address):
 
+    global connectedClients
+    with clients_lock:
+        connectedClients.append(client_socket)  # add new client
+        print(f"new connection from {client_address}")
+
     try:
         num_bytes = 0
         floatData = []
@@ -115,6 +123,15 @@ def handle_client(client_socket, client_address):
         client_socket.close()
         print(f"Connection from {client_address} closed")
 
+"""function to broadcast command to all connected clients"""
+def broadcast_command(command):
+    global connectedClients
+    with clients_lock:
+        for client in connectedClients:
+            try:
+                client.sendall((command + "\n").encode('ascii'))
+            except:
+                print("Error sending command to clients")
 
 # Function to accept and handle multiple clients
 def accept_clients():
@@ -123,7 +140,7 @@ def accept_clients():
         try:
             # Wait for a connection
             client_socket, client_address = server_socket.accept()
-            print(f"Connection from {client_address}")
+            # print(f"Connection from {client_address}")
 
             # Create a new thread to handle the client
             client_thread = threading.Thread(target=handle_client, args=(client_socket, client_address))
@@ -145,6 +162,8 @@ accept_clients_thread.start()
 MAX_EXPECTED_PLOTS = value = int(input("input MAX_EXPECTED_PLOTS number"))
 fig, axs = plt.subplots(nrows=MAX_EXPECTED_PLOTS, sharex=True)
 
+command = "SEND_DATA";
+broadcast_command(command)
 # Create a line object for the plot
 # line, = axs[0].plot( [])
 lines = {}
@@ -186,6 +205,7 @@ def update_plot(frame):
                 axs[client_index].legend()
     except :
         pass
+
 
 # Create an animation object
 ani = FuncAnimation(fig, update_plot, interval=10, save_count=10)
