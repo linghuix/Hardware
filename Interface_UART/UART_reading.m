@@ -27,7 +27,7 @@
 % - s: Serial object used for communication with the device.
 % - hPlot: Handle for the real-time plot.
 
-% Example Usage:
+% Example Usage:87
 % Update the 'port' variable to match the COM port of your device, and adjust 
 % 'baudRate' as needed. DON'T forget change the beginning char 'a' as expected.
 % Run the script to start collecting and plotting sensor data.
@@ -40,8 +40,9 @@ clc;
 
 
 %put 1.25 kg on load cellA(on the foot heel, 15cm moment arm ) when motor is on
-note_tosave = 'load 2.5g, 1rpm, moment arm towards heel(loadcell A) 5.9cm, -90 - +90 degree, with footplate';
-
+% note_tosave = 'noload 20rpm';
+note_tosave = ' plantar 15 to dorsi 10 - dynamic trial';
+% note_tosave = '1.25kg loading test, 50rpm, 12.5cm from output axis to weight mass center towards toe, reduce jerk accel to 3000 rpm/s' ;
 port = 'COM21';  % Update with your COM port
 baudRate = 115200;
 
@@ -60,7 +61,7 @@ configureTerminator(s, "CR/LF");
 
 
 % Set a maximum number of points to display in the plot at one time
-maxPoints = 1000;
+maxPoints = 200;
 
 % Set a maximum number of iterations
 maxIterations = 80*20*60;
@@ -72,8 +73,9 @@ dataMatrix = NaN(maxIterations, 4);  % Initialize with NaNs
 timeStamps = NaN(1, maxIterations);  % Initialize timestamps array
 
 
-% Send the character 'c' to the Arduino via Bluetooth
-write(s, 'c', "string");
+% Send the character 'c' to the Arduino via COM port
+% zero the output
+% write(s, 'c', "string");
 
 
 % Start the timer to measure the overall runtime

@@ -2,7 +2,10 @@
 clear;
 clc;
 
-note_tosave = 'put 1.25 kg on load cellB(on the foot tip, 15cm moment arm ) when motor is on';
+% note_tosave = 'put 1.25 kg on load cellB(on the foot tip, 15cm moment arm ) when motor is on';
+
+note_tosave = 'test';
+
 %"first put 1.25 kg on load cell B (on the foot tip, 15cm moment arm ), " + ...
     %"then put 2.5 kg on load cell A (on the foot heel, 15cm moment arm)"
 
