@@ -20,7 +20,43 @@ MISO    <------------- MISO / pin 19
 
 
 
+### Lib requirement
 
+AS5048A:  [AS5048A.zip](Adafruit feather HUZZAH32\LIB\AS5048A.zip) 
+
+**NOTE !!!** 
+
+in this library it sets 50 ms delay for ESP32 board. it is should be reset to 0
+
+In AS5048A.cpp
+
+```
+/**
+ * Set the delay acording to the microcontroller architecture
+ */
+void AS5048A::setDelay()
+{
+#if defined(ESP32) || defined(ARDUINO_ARCH_ESP32)
+	this->esp32_delay = 50;  //this->esp32_delay = 0;
+	if (this->debug)
+	{
+		Serial.println("AS5048A working with ESP32");
+	}
+#elif __AVR__
+	this->esp32_delay = 0;
+	if (this->debug)
+	{
+		Serial.println("AS5048A working with AVR");
+	}
+#else
+	this->esp32_delay = 0;
+	if (this->debug)
+	{
+		Serial.println("Device not detected");
+	}
+#endif
+}
+```
 
 
 

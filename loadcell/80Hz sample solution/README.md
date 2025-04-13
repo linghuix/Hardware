@@ -4,9 +4,15 @@
 
 
 
-### 80Hz solution
+### ESP32 - 80Hz solution
 
 
+
+**LIb requirement**
+
+HX711：   [HX711-master.zip](esp32\loadcell\lib\HX711-master.zip) 
+
+<img src="README.assets/image-20250409180350905.png" style="zoom:50%;" />
 
 **code** 
 
@@ -45,4 +51,6 @@
 *Connection*  
 
 <img src="README.assets/ele.jpg" alt="ele" style="zoom:50%;" /> 
+
+
 
