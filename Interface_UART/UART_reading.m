@@ -41,7 +41,7 @@ clc;
 
 %put 1.25 kg on load cellA(on the foot heel, 15cm moment arm ) when motor is on
 % note_tosave = 'noload 20rpm';
-note_tosave = ' plantar 15 to dorsi 10 - dynamic trial';
+note_tosave = 'ISO 10DF-40PF 30d/s DF conetric KNee 110d';
 % note_tosave = '1.25kg loading test, 50rpm, 12.5cm from output axis to weight mass center towards toe, reduce jerk accel to 3000 rpm/s' ;
 port = 'COM21';  % Update with your COM port
 baudRate = 115200;
