@@ -1,4 +1,4 @@
-% prompt : 请帮我写一份matlab GUI script 实现如下的功能： 1. 拥有一个按钮，按钮启动后接收 udp 数据 ，数据类型 struct MotorPacket {
+% 数据类型 struct {
   % uint32_t packageID;
   % float current_mA;
   % float speed_dps;
@@ -9,7 +9,7 @@
   % float measured_f;
   % float output;
   % uint32_t timeRecord;
-% }; 关闭后能够自动保存数据为mat文件，并添加时间戳 2. 其次能够有输入 udp的ip 输入框 3. 还可以拥有udp 发送按钮和配置按钮 3. 有个图显示窗口，能实时显示每个参数的数据曲线，同时可以有勾选项显示和隐藏某些数据曲线 4. matlab 版本是2023
+% };
 
 
 function udpGUI
@@ -21,11 +21,13 @@ function udpGUI
 %   save 为 serialGUI.m，然后在 MATLAB 命令行运行 serialGUI
 
 %% ---- configuration setting ----
-PACKET_BYTES = 40;
+
 DEFAULT_RX_PORT = 6000;   % 本地接收端口
 DEFAULT_TX_PORT = 6001;   % 默认发送端口
+
 MAX_POINTS_DEFAULT = 1000;
 
+PACKET_BYTES = 40;
 colNames = {'packageID','currentmA','speedDps','positionDeg','filteredCur','filteredSp','setpoint','measuredF','output','timeRecord'}; % 列信息
 NUMBER_ = numel(colNames);   % number of data split with ',' and the last one is time microsecond
 
@@ -235,16 +237,29 @@ uilabel(fig,'Text','接收示例格式: No,I,V,P,filtered_I,filtered_V,setpoint,
     end
 
     function saveDataToMat()
-		if writeIdx == 0
-			disp('No data to save.');
-			return;
-		end
-		
-		validData = DataArray(1:writeIdx,:);
-		dataTbl = array2table(validData, 'VariableNames', colNames);
-		
+        if writeIdx == 0
+          disp('No data to save.');
+          return;
+        end
+
+        % Prompt the user to enter a file name (without extension)
+        answer = inputdlg('Enter file name (without extension):', 'Save Data', [1 50], {'serial_data'});
+        if isempty(answer)
+            % User cancelled the input
+            return;
+        end
+
+        fileName = answer{1};
         ts = datestr(now,'yyyymmdd_HHMMSS');
-        fname = sprintf('serial_data_%s.mat', ts);
+        if isempty(fileName)
+            fname = sprintf('%s_serial_data.mat', ts);
+        else
+            fname = [ts '_' fileName '.mat'];
+        end
+		
+        validData = DataArray(1:writeIdx,:);
+        dataTbl = array2table(validData, 'VariableNames', colNames);
+		
         % 保存变量 dataTbl、buf、times_arr 以便后续分析
         try
             save(fname, 'dataTbl','-v7.3');
