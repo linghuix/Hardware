@@ -8,6 +8,8 @@ function serialGUI
 
 %% ---- default configuration setting, change as you want ----
 
+StopCommand = 'p';		% in a line
+
 % variable names. change name and number if you want
 colNames = {'No','I','V','P','filtered_I','filtered_V','setpoint','cable_force','output','time'}; 
 NUMBER_ = numel(colNames);   % number of data split with ',' and the last one is time microsecond
@@ -146,8 +148,12 @@ uilabel(fig,'Text','Expected data format: packageID, float1, float2, float3,... 
             times_arr = [];
             dataTbl = dataTbl([], :); % empty
         else
-            writeline(sp, 'p'); % stop command
-            % Stop: delete callback and serialport, save data
+            try
+                writeline(sp, StopCommand); % stop command
+                % Stop: delete callback and serialport, save data
+            catch
+                uialert(fig, ['cannot find serial port, ' ME.message],'error');
+            end
             stopReceivingAndSave();
             src.Text = '开始接收';
             lblStatus.Text = '状态: 已停止';
@@ -191,11 +197,11 @@ uilabel(fig,'Text','Expected data format: packageID, float1, float2, float3,... 
             nums(k) = n;
         end
         % append to buffer
-        buf(end+1,:) = nums; 	    %#ok
+        buf(end+1,:) = nums; 	    
         times_arr(end+1) = nums(end)/1000000;   % last number is time microsecond
         % 更新 table（保留为数值型）
         newRow = array2table(nums, 'VariableNames', dataTbl.Properties.VariableNames);
-        dataTbl = [dataTbl; newRow]; %#ok<AGROW>
+        dataTbl = [dataTbl; newRow];
         % 简单实时更新绘图（只绘最近 N 点以加速）
         updatePlots();
     end
@@ -308,12 +314,16 @@ uilabel(fig,'Text','Expected data format: packageID, float1, float2, float3,... 
     
     % 按钮回调：发送数据
     function sendData(txt)
-        data = txt.Value;
-        if ~isempty(data)
-            writeline(sp, data);  % 发送字符串并自动加换行符
-            uialert(txt.Parent, "已发送: " + data, "提示");
-        else
-            uialert(txt.Parent, "请输入内容！", "警告");
+        try
+            data = txt.Value;
+            if ~isempty(data)
+                writeline(sp, data);  % 发送字符串并自动加换行符
+                uialert(txt.Parent, "已发送: " + data, "提示");
+            else
+                uialert(txt.Parent, "请输入内容！", "警告");
+            end
+        catch
+            % ignore plotting errors
         end
     end
 
