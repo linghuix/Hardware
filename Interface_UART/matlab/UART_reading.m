@@ -49,15 +49,22 @@ clc;
 % note_tosave = 'Isometric_20PF_pos_PF_move_knee120d';
 
 % note_tosave = 'ISO 30PF-10DF 10d/s DF concentric KNee 120d_5';
-% note_tosave = 'ISO 10DF-30PF 10d/s DF eccentric KNee 120d_5';
+% % note_tosave = 'ISO 10DF-30PF 10d/s DF eccentric KNee 120d_5';
 % note_tosave = 'ISO 30PF-10DF 50d/s DF concentric KNee 120d_5';
 % note_tosave = 'ISO 10DF-30PF 50d/s DF eccentric KNee 120d_5';
 % note_tosave = 'ISO 10DF-30PF 50d/s DF eccentric KNee 120d_5 longtest';
 % note_tosave = 'ISO 30PF-10DF 90d/s DF concentric KNee 120d_longtest';
 
-note_tosave = 'ISO 10DF-30PF 90d/s DF eccentric KNee 120d_longtest';
+% note_tosave = 'ISOMET DF PF30_pos';
 
-% note_tosave = 'ISO 10DF-40PF 30d/s DF conetric KNee 110d';
+% note_tosave = 'ISOKIN 10DF-30PF 90dps eccentric DF KNee120d';
+% note_tosave = 'ISOKIN 10DF-30PF 90dps concentric PF KNee120d';
+
+% note_tosave = 'ISOKIN 30PF-10DF 90dps eccentric PF KNee120d';
+note_tosave = 'ISOKIN 30PF-10DF 90dps concentric DF KNee120d';
+
+
+% note_tosave = 'TEST -90deg- 90deg without anything 8.33rpm';
 % note_tosave = '1.25kg loading test, 50rpm, 12.5cm from output axis to weight mass center towards toe, reduce jerk accel to 3000 rpm/s' ;
 port = 'COM21';  % Update with your COM port
 baudRate = 115200;

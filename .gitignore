@@ -62,3 +62,11 @@ loadcell/80Hz sample solution/README.pdf
 *.asv
 *.m4a
 Interface_UART/.vscode/
+*.toc
+*.pkg
+*.pyc
+*.pyz
+*.json
+*.spec
+*.html
+*.txt
