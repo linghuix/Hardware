@@ -3,9 +3,9 @@
 
 void datasend(void);
 
-const char *ssid = "TP-LINK_LHX";
+const char *ssid = "YOUR_SSID";
 const char *password = "YOUR_PASSWORD";
-//const char *ssid = "water";
+//const char *ssid = "YOUR_SSID_2";
 //const char *password = "YOUR_PASSWORD_2";
 //const char *server_ip = "192.168.43.1"; //python is server
 const char *server_ip = "130.229.139.196"; //python is server
